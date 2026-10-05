@@ -1,0 +1,1477 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Entdeckende GeoGebra-Lernumgebung zur Entwicklung eines Verfahrens für den Abstand zwischen Punkt und Gerade im Raum.">
+  <title>Forscherlabor – Abstand Punkt und Gerade</title>
+  <script src="https://www.geogebra.org/apps/deployggb.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4.0.0/tex-chtml.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172135;
+      --muted: #687187;
+      --paper: #f7f4ed;
+      --card: rgba(255, 255, 255, 0.88);
+      --line: rgba(23, 33, 53, 0.11);
+      --blue: #1264a3;
+      --blue-dark: #0d456f;
+      --red: #d84a3a;
+      --green: #26755c;
+      --gold: #dca13a;
+      --shadow: 0 20px 60px rgba(31, 44, 64, 0.11);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    button, input, summary {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(18, 100, 163, 0.14);
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 5%, rgba(220, 161, 58, 0.16), transparent 28rem),
+        radial-gradient(circle at 92% 8%, rgba(18, 100, 163, 0.12), transparent 30rem),
+        var(--paper);
+    }
+
+    button { font: inherit; }
+
+    .shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 34px 0 52px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 760;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      color: white;
+      background: var(--ink);
+      box-shadow: 0 8px 20px rgba(23, 33, 53, 0.18);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border: 1px solid rgba(38, 117, 92, 0.18);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(38, 117, 92, 0.08);
+      font-size: 0.82rem;
+      font-weight: 720;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 4px rgba(38, 117, 92, 0.10);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(330px, 0.65fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .visual-card,
+    .side-card,
+    .explain-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .visual-card { overflow: hidden; }
+
+    .visual-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 26px 28px 22px;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--blue);
+      font-size: 0.74rem;
+      font-weight: 820;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 4vw, 4.15rem);
+      font-weight: 500;
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    h2, h3, p { margin-top: 0; }
+
+    .intro {
+      max-width: 620px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.62;
+    }
+
+    .result-mini {
+      flex: 0 0 auto;
+      padding: 13px 16px;
+      border-left: 3px solid var(--red);
+      border-radius: 0 12px 12px 0;
+      background: rgba(216, 74, 58, 0.06);
+    }
+
+    .result-mini span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .result-mini strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--red);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 600;
+    }
+
+    .ggb-wrap {
+      position: relative;
+      min-height: 590px;
+      margin: 0 12px 12px;
+      overflow: hidden;
+      border: 1px solid rgba(23, 33, 53, 0.10);
+      border-radius: 18px;
+      background: linear-gradient(145deg, #eef5f8, #fbfaf6);
+    }
+
+    #ggb-element {
+      width: 100%;
+      min-height: 590px;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      text-align: center;
+      color: var(--muted);
+      background: linear-gradient(145deg, #eef5f8, #fbfaf6);
+      transition: opacity 250ms ease, visibility 250ms ease;
+    }
+
+    .loading.hidden { opacity: 0; visibility: hidden; }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      margin: 0 auto 14px;
+      border: 3px solid rgba(18, 100, 163, 0.15);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      padding: 3px 16px 16px;
+    }
+
+    .touch-instruction {
+      display: none;
+      flex: 1 0 100%;
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.45;
+    }
+
+    .flight-slider-panel {
+      margin: 0 16px 13px;
+      padding: 16px 18px 14px;
+      border: 1px solid rgba(18, 100, 163, 0.18);
+      border-radius: 16px;
+      background: rgba(18, 100, 163, 0.06);
+    }
+
+    .flight-slider-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
+
+    .flight-slider-head label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 780;
+    }
+
+    .flight-slider-head small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .flight-values {
+      display: flex;
+      gap: 18px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .flight-values span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.68rem;
+    }
+
+    .flight-values strong { font-size: 0.94rem; }
+
+    .flight-slider-panel .discovery-note { margin-bottom: 0; }
+
+    .control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 43px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.75);
+      font-size: 0.84rem;
+      font-weight: 720;
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .control:hover { transform: translateY(-1px); border-color: rgba(18, 100, 163, 0.34); }
+    .control:focus-visible { outline: 3px solid rgba(18, 100, 163, 0.22); outline-offset: 2px; }
+    .control.primary { color: white; border-color: var(--blue); background: var(--blue); }
+    .control.active { color: var(--blue-dark); border-color: rgba(18, 100, 163, 0.35); background: rgba(18, 100, 163, 0.09); }
+    .control:disabled { opacity: 0.46; cursor: not-allowed; transform: none; }
+
+    .side-card {
+      display: flex;
+      flex-direction: column;
+      padding: 25px;
+    }
+
+    .verdict {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      border-radius: 18px;
+      color: white;
+      background: var(--ink);
+    }
+
+    .verdict::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      bottom: -55px;
+      width: 150px;
+      height: 150px;
+      border: 28px solid rgba(255, 255, 255, 0.06);
+      border-radius: 50%;
+    }
+
+    .verdict-label {
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 0.73rem;
+      font-weight: 760;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .verdict h2 {
+      margin: 10px 0 8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2.1rem;
+      font-weight: 500;
+      line-height: 1.02;
+    }
+
+    .verdict p {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.5;
+    }
+
+    .verdict strong { color: #84ddbb; }
+
+    .section-title {
+      margin: 27px 0 13px;
+      font-size: 0.78rem;
+      font-weight: 820;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .mission {
+      padding: 21px;
+      border: 1px solid rgba(18, 100, 163, 0.16);
+      border-radius: 18px;
+      background: rgba(18, 100, 163, 0.07);
+    }
+
+    .mission-label,
+    .lab-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--blue);
+      font-size: 0.72rem;
+      font-weight: 820;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .mission h2 {
+      margin-bottom: 9px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.65rem;
+      font-weight: 500;
+      line-height: 1.05;
+    }
+
+    .mission p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .lab {
+      margin-top: 14px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .readout {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 13px;
+    }
+
+    .readout span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .readout strong {
+      display: block;
+      margin-top: 2px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 600;
+    }
+
+    .readout .distance-live { color: var(--red); text-align: right; }
+
+    .range-control {
+      width: 100%;
+      min-height: 34px;
+      accent-color: var(--blue);
+      background: transparent;
+      cursor: grab;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .range-control:active { cursor: grabbing; }
+
+    .range-control::-webkit-slider-runnable-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(18, 100, 163, 0.18);
+    }
+
+    .range-control::-webkit-slider-thumb {
+      width: 28px;
+      height: 28px;
+      margin-top: -10px;
+      border: 4px solid white;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 2px 8px rgba(23, 33, 53, 0.24);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .range-control::-moz-range-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(18, 100, 163, 0.18);
+    }
+
+    .range-control::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border: 4px solid white;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 2px 8px rgba(23, 33, 53, 0.24);
+    }
+
+    .range-scale {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.67rem;
+    }
+
+    .discovery-note {
+      min-height: 36px;
+      margin: 13px 0 0;
+      padding: 10px 12px;
+      border-left: 3px solid var(--gold);
+      border-radius: 0 9px 9px 0;
+      color: #72551f;
+      background: rgba(220, 161, 58, 0.09);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .inquiry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .inquiry-step {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .inquiry-step h3 { margin: 0 0 8px; font-size: 0.93rem; }
+    .inquiry-step p { margin: 0; color: var(--muted); font-size: 0.82rem; line-height: 1.55; }
+
+    .method-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(23, 33, 53, 0.04);
+    }
+
+    .method-tab {
+      min-height: 48px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 11px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 0.78rem;
+      font-weight: 760;
+      line-height: 1.25;
+      cursor: pointer;
+    }
+
+    .method-tab:hover { color: var(--ink); }
+    .method-tab:focus-visible { outline: 3px solid rgba(18, 100, 163, 0.20); outline-offset: 2px; }
+    .method-tab.active { color: white; background: var(--blue); box-shadow: 0 7px 18px rgba(18, 100, 163, 0.20); }
+
+    .method-panel {
+      display: none;
+      min-height: 230px;
+      padding: 19px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .method-panel.active { display: block; }
+
+    .method-panel h3 {
+      margin: 0 0 7px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+    }
+
+    .method-panel > p { color: var(--muted); font-size: 0.84rem; line-height: 1.55; }
+
+    .method-task {
+      margin: 14px 0;
+      padding: 12px 14px;
+      border-left: 3px solid var(--gold);
+      border-radius: 0 10px 10px 0;
+      color: #72551f;
+      background: rgba(220, 161, 58, 0.09);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .live-math {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 14px 0;
+      padding: 13px 15px;
+      border: 1px solid rgba(18, 100, 163, 0.16);
+      border-radius: 12px;
+      background: rgba(18, 100, 163, 0.06);
+    }
+
+    .live-math span:first-child { color: var(--muted); font-size: 0.76rem; }
+    .live-math strong { color: var(--blue-dark); font-family: "SFMono-Regular", Consolas, monospace; }
+
+    .chart-wrap {
+      margin-top: 13px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: white;
+    }
+
+    #distance-chart { display: block; width: 100%; height: 210px; }
+
+    .chart-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 6px 2px;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .common-result { margin-top: 15px; }
+
+    .solution-gate {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 9px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(23, 33, 53, 0.035);
+    }
+
+    .solution-gate label {
+      flex: 1 1 170px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 720;
+    }
+
+    .solution-code {
+      display: block;
+      width: 100%;
+      min-height: 43px;
+      margin-top: 6px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--ink);
+      background: white;
+      font: 700 0.95rem "SFMono-Regular", Consolas, monospace;
+      letter-spacing: 0.16em;
+    }
+
+    .solution-code:focus { outline: 3px solid rgba(18, 100, 163, 0.16); border-color: var(--blue); }
+    .solution-code:disabled { color: var(--green); background: rgba(38, 117, 92, 0.06); }
+
+    .gate-feedback {
+      flex: 1 0 100%;
+      min-height: 1.2em;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .gate-feedback.error { color: var(--red); }
+    .gate-feedback.success { color: var(--green); }
+
+    .optional-observation {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .optional-observation summary {
+      padding: 12px 14px;
+      color: var(--blue-dark);
+      font-size: 0.8rem;
+      font-weight: 760;
+      cursor: pointer;
+    }
+
+    .optional-observation[open] summary { border-bottom: 1px solid var(--line); }
+    .optional-observation .live-math { margin: 12px; }
+    .optional-observation .chart-wrap { margin: 12px; }
+
+    .hint-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 16px;
+    }
+
+    .hint-content {
+      display: none;
+      margin-top: 12px;
+      padding: 13px 15px;
+      border-left: 3px solid var(--blue);
+      border-radius: 0 11px 11px 0;
+      color: var(--muted);
+      background: rgba(18, 100, 163, 0.06);
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    .hint-content.visible { display: block; }
+
+    .solution-panel {
+      display: none;
+      margin-top: 22px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    .solution-panel.visible { display: block; }
+
+    .solution-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 17px;
+    }
+
+    .solution-head h3 {
+      margin: 0 0 5px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 500;
+    }
+
+    .solution-head p { margin: 0; color: var(--muted); font-size: 0.84rem; }
+
+    .solution-badge {
+      flex: 0 0 auto;
+      padding: 9px 12px;
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(38, 117, 92, 0.09);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .data-list { display: grid; gap: 10px; }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      background: var(--swatch);
+      box-shadow: inset 0 0 0 7px rgba(255, 255, 255, 0.78);
+    }
+
+    .data-row small {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .mono {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .latex-block {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 2px 0;
+      color: var(--ink);
+      scrollbar-width: thin;
+    }
+
+    .latex-block mjx-container[display="true"] {
+      margin: 0.3rem 0 !important;
+      text-align: left !important;
+      font-size: 93% !important;
+    }
+
+    .legend {
+      margin-top: auto;
+      padding-top: 26px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+
+    .legend-line {
+      display: inline-block;
+      width: 28px;
+      height: 3px;
+      margin: 0 7px 3px 0;
+      border-radius: 99px;
+      background: var(--red);
+    }
+
+    .explain-card {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 34px;
+      margin-top: 22px;
+      padding: 30px;
+    }
+
+    .explain-copy h2 {
+      margin-bottom: 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.8rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+    }
+
+    .explain-copy p {
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .step {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .step-num {
+      display: grid;
+      place-items: center;
+      width: 25px;
+      height: 25px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      color: white;
+      background: var(--blue);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .step strong { display: block; margin-bottom: 7px; font-size: 0.88rem; }
+    .step .mono { color: var(--muted); font-size: 0.76rem; }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 19px 3px 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 1180px) {
+      .shell { width: min(100% - 24px, 1480px); padding-top: 24px; }
+      .hero { grid-template-columns: 1fr; }
+      .side-card { min-height: 0; }
+      .legend { margin-top: 0; }
+      .explain-card { grid-template-columns: 1fr; }
+      .inquiry-grid { grid-template-columns: 1fr; }
+      .ggb-wrap, #ggb-element { min-height: clamp(540px, 60vh, 680px); }
+      .control { min-height: 48px; padding-inline: 18px; }
+      .method-tab { min-height: 54px; font-size: 0.84rem; }
+      .method-panel { min-height: 0; padding: 22px; }
+      .solution-code { min-height: 48px; font-size: 1rem; }
+    }
+
+    @media (max-width: 680px) {
+      .shell { width: min(100% - 18px, 1480px); padding-top: 18px; }
+      .topbar { margin-bottom: 16px; }
+      .status-pill { display: none; }
+      .visual-head { display: block; padding: 22px 20px 18px; }
+      h1 { font-size: clamp(2.25rem, 12vw, 3.4rem); }
+      .result-mini { display: inline-block; margin-top: 18px; }
+      .ggb-wrap, #ggb-element { min-height: 470px; }
+      .controls { padding-top: 8px; }
+      .flight-slider-head { display: block; }
+      .flight-values { justify-content: space-between; margin-top: 12px; text-align: left; }
+      .control { flex: 1 1 calc(50% - 9px); justify-content: center; }
+      .method-tabs { grid-template-columns: 1fr; }
+      .side-card, .explain-card { padding: 18px; border-radius: 20px; }
+      .steps { grid-template-columns: 1fr; }
+      .solution-head { display: block; }
+      .solution-badge { display: inline-block; margin-top: 12px; }
+      footer { display: block; line-height: 1.7; }
+    }
+
+    @media (pointer: coarse) {
+      .control { min-height: 52px; }
+      .method-tab { min-height: 58px; }
+      .optional-observation summary { min-height: 52px; display: flex; align-items: center; }
+      .touch-instruction { display: block; }
+      .range-control { min-height: 44px; }
+      .range-control::-webkit-slider-thumb { width: 32px; height: 32px; margin-top: -12px; }
+      .range-control::-moz-range-thumb { width: 26px; height: 26px; }
+    }
+
+    @media (min-width: 681px) and (max-width: 1180px) {
+      .visual-head { padding: 28px 30px 24px; }
+      .flight-slider-panel { margin-inline: 20px; padding: 19px 22px 17px; }
+      .controls { padding-inline: 20px; }
+      .side-card { padding: 28px; }
+      .data-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .explain-card { padding: 28px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">↗</span> Geometrie-Labor</div>
+      <div class="status-pill"><span class="status-dot"></span> Mathe LK · Q2</div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <article class="visual-card">
+        <div class="visual-head">
+          <div>
+            <p class="eyebrow">Entdeckendes Lernen · Abstand Punkt ↔ Gerade</p>
+            <h1 id="page-title">Findet ein Verfahren für den kürzesten Abstand.</h1>
+            <p class="intro">Bewegt das Flugzeug auf seiner Bahn, sammelt Beobachtungen und entwickelt daraus einen eigenen, begründeten Lösungsweg.</p>
+          </div>
+          <div class="result-mini" aria-live="polite">
+            <span>Aktuelle Messung</span>
+            <strong id="hero-distance">149,52 m</strong>
+          </div>
+        </div>
+
+        <div class="ggb-wrap">
+          <div id="loading" class="loading" role="status">
+            <div><div class="spinner"></div><strong>GeoGebra wird geladen …</strong><br><small>Für die 3D-Ansicht wird eine Internetverbindung benötigt.</small></div>
+          </div>
+          <div id="ggb-element" aria-label="GeoGebra 3D-Ansicht der Flugbahn und Kirchturmspitze"></div>
+        </div>
+
+        <div class="flight-slider-panel">
+          <div class="flight-slider-head">
+            <label for="t-slider">Position des Flugzeugs
+              <small>Verschiebt P(t) entlang der blauen Flugbahn.</small>
+            </label>
+            <div class="flight-values" aria-live="polite">
+              <div><span>Parameter</span><strong>t = <span id="t-value">0,00</span></strong></div>
+              <div><span>Abstand |S−P(t)|</span><strong id="distance-value">149,52 m</strong></div>
+            </div>
+          </div>
+          <input class="range-control" id="t-slider" type="range" min="-0.5" max="3.5" step="0.01" value="0" disabled>
+          <div class="range-scale" aria-hidden="true"><span>t = −0,5</span><span>t = 1,5</span><span>t = 3,5</span></div>
+          <p class="discovery-note" id="discovery-note">Erfasst mehrere Wertepaare und beschreibt, wie sich der Abstand beim Verschieben verändert.</p>
+        </div>
+
+        <div class="controls" aria-label="Steuerung der Visualisierung">
+          <button class="control primary" id="animate-btn" type="button" disabled><span aria-hidden="true">▶</span> Flug starten</button>
+          <button class="control active" id="distance-btn" type="button" aria-pressed="true" disabled><span aria-hidden="true">↔</span> Messstrecke</button>
+          <button class="control" id="reset-btn" type="button" disabled><span aria-hidden="true">↺</span> Ansicht zurücksetzen</button>
+          <p class="touch-instruction">Touch-Steuerung: Mit einem Finger die 3D-Ansicht drehen, mit zwei Fingern zoomen.</p>
+        </div>
+      </article>
+
+      <aside class="side-card" aria-label="Forscherauftrag und Experiment">
+        <div class="mission">
+          <span class="mission-label">Forscherauftrag</span>
+          <h2>Wie lässt sich der kleinste Abstand sicher bestimmen?</h2>
+          <p>Erkundet zuerst das Modell. Entwickelt danach eine Rechnung, die nicht vom Ausprobieren abhängt.</p>
+        </div>
+
+        <h3 class="section-title">Gegeben</h3>
+        <div class="data-list">
+          <div class="data-row">
+            <span class="swatch" style="--swatch:#dca13a"></span>
+            <div>
+              <small>Punkt: Kirchturmspitze S</small>
+              <div class="latex-block" aria-label="S mit den Koordinaten 185, 5, 24">
+                \[ S=(185\mid 5\mid 24) \]
+              </div>
+            </div>
+          </div>
+          <div class="data-row">
+            <span class="swatch" style="--swatch:#1264a3"></span>
+            <div>
+              <small>Gerade: Flugbahn g</small>
+              <div class="latex-block" aria-label="g: x Vektor gleich Spaltenvektor 61, 87, 8 plus t mal Spaltenvektor 56, 7, 8; t ist eine reelle Zahl">
+                \[ g:\;\vec{x}=\begin{pmatrix}61\\87\\8\end{pmatrix}+t\cdot\begin{pmatrix}56\\7\\8\end{pmatrix},\quad t\in\mathbb{R} \]
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="explain-card" aria-labelledby="forschungsweg-title">
+      <div class="explain-copy">
+        <p class="eyebrow">Drei Lösungswege</p>
+        <h2 id="forschungsweg-title">Wählt euren mathematischen Zugang.</h2>
+        <p>Jede Karte stellt nur ein passendes Werkzeug bereit. Die mathematische Idee, die Gleichungen und die Begründung entwickelt ihr selbst.</p>
+      </div>
+      <div>
+        <div class="method-tabs" role="tablist" aria-label="Lösungsweg auswählen">
+          <button class="method-tab active" id="tab-plane" data-method="plane" role="tab" aria-selected="true" aria-controls="panel-plane">Hilfsebene</button>
+          <button class="method-tab" id="tab-dot" data-method="dot" role="tab" aria-selected="false" aria-controls="panel-dot">Skalarprodukt</button>
+          <button class="method-tab" id="tab-function" data-method="function" role="tab" aria-selected="false" aria-controls="panel-function">Abstandsfunktion</button>
+        </div>
+
+        <section class="method-panel active" id="panel-plane" data-panel="plane" role="tabpanel" aria-labelledby="tab-plane">
+          <h3>Weg A · Hilfsebene</h3>
+          <p>Eine zusätzliche Ebene kann helfen, einen ausgezeichneten Punkt auf der Flugbahn zu finden.</p>
+          <div class="method-task"><strong>Offener Auftrag:</strong> Entscheidet selbst, welche Eigenschaften diese Ebene besitzen muss und wie ihr den gesuchten Punkt anschließend rechnerisch ermittelt.</div>
+          <div class="hint-actions">
+            <button class="control" id="toggle-plane-btn" type="button" aria-pressed="false" disabled>Hilfsebene im Modell anzeigen</button>
+          </div>
+        </section>
+
+        <section class="method-panel" id="panel-dot" data-panel="dot" role="tabpanel" aria-labelledby="tab-dot" hidden>
+          <h3>Weg B · Skalarprodukt</h3>
+          <p>Blendet die beteiligten Vektoren ein und untersucht ihre Beziehung, während ihr P(t) verschiebt.</p>
+          <div class="method-task"><strong>Offener Auftrag:</strong> Wählt geeignete Vektoren und formuliert mit dem Skalarprodukt eine Bedingung, die den gesuchten Geradenpunkt kennzeichnet.</div>
+          <div class="hint-actions">
+            <button class="control" id="toggle-vectors-btn" type="button" aria-pressed="false" disabled>Vektoren im Modell anzeigen</button>
+          </div>
+          <details class="optional-observation">
+            <summary>Numerischen Skalarproduktwert einblenden</summary>
+            <div class="live-math"><span>Aktueller Messwert</span><strong><span id="dot-value">6498,00</span></strong></div>
+          </details>
+        </section>
+
+        <section class="method-panel" id="panel-function" data-panel="function" role="tabpanel" aria-labelledby="tab-function" hidden>
+          <h3>Weg C · Tiefpunkt der Abstandsfunktion</h3>
+          <p>Der Regler liefert zu jedem Parameterwert t einen gemessenen Abstand.</p>
+          <div class="method-task"><strong>Offener Auftrag:</strong> Entwickelt aus den gegebenen Koordinaten eine Abstandsfunktion und untersucht sie mit einem geeigneten Verfahren auf Extremstellen.</div>
+          <details class="optional-observation" id="chart-details">
+            <summary>Graphen zur Kontrolle einblenden</summary>
+            <div class="chart-wrap">
+              <canvas id="distance-chart" role="img" aria-label="Graph der Abstandsfunktion d von t mit markierter aktueller Flugzeugposition"></canvas>
+              <div class="chart-caption"><span>Messwertgraph</span><span id="chart-point">t = 0,00 · d = 149,52 m</span></div>
+            </div>
+          </details>
+        </section>
+
+        <div class="common-result">
+          <div class="solution-gate">
+            <label for="solution-code">Lösungscode
+              <input class="solution-code" id="solution-code" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Code eingeben">
+            </label>
+            <button class="control primary" id="solution-btn" type="button" aria-expanded="false" disabled>Lösungen freischalten</button>
+            <p class="gate-feedback" id="gate-feedback" role="status" aria-live="polite">Die vollständigen Lösungswege sind durch einen Code geschützt.</p>
+          </div>
+        </div>
+
+        <div class="solution-panel" id="solution-panel">
+          <div class="solution-head">
+            <div>
+              <h3>Drei Wege, derselbe Lotfußpunkt.</h3>
+              <p>Alle Verfahren liefern <span class="mono">t = 2</span> und <span class="mono">F = (173 | 101 | 24)</span>.</p>
+            </div>
+            <span class="solution-badge">96,75 m &lt; 100 m</span>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <span class="step-num">A</span>
+              <strong>Hilfsebene</strong>
+              <div class="mono">H: 56x+7y+8z=10587<br>H ∩ g ⇒ t=2</div>
+            </div>
+            <div class="step">
+              <span class="step-num">B</span>
+              <strong>Skalarprodukt</strong>
+              <div class="mono">(S−P(t))·v=0<br>6498−3249t=0 ⇒ t=2</div>
+            </div>
+            <div class="step">
+              <span class="step-num">C</span>
+              <strong>Abstandsfunktion</strong>
+              <div class="mono">d²(t)=3249t²−12996t+22356<br>Tiefpunkt bei t=2</div>
+            </div>
+          </div>
+          <p class="legend"><span class="legend-line"></span> Mit F gilt abschließend: <span class="mono">|S−F| = 12√65 ≈ 96,75 m</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>Maßeinheit aller Koordinaten: Meter</span>
+      <span>Lernziel: ein begründetes Verfahren für den Abstand Punkt–Gerade entwickeln.</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      let api = null;
+      let animationId = null;
+      let animationStart = 0;
+      let distanceVisible = true;
+      let solutionVisible = false;
+      let solutionUnlocked = false;
+      let planeVisible = false;
+      let vectorsVisible = false;
+
+      const loading = document.getElementById('loading');
+      const animateBtn = document.getElementById('animate-btn');
+      const distanceBtn = document.getElementById('distance-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const slider = document.getElementById('t-slider');
+      const tValue = document.getElementById('t-value');
+      const distanceValue = document.getElementById('distance-value');
+      const heroDistance = document.getElementById('hero-distance');
+      const discoveryNote = document.getElementById('discovery-note');
+      const methodTabs = [...document.querySelectorAll('.method-tab')];
+      const methodPanels = [...document.querySelectorAll('.method-panel')];
+      const togglePlaneBtn = document.getElementById('toggle-plane-btn');
+      const toggleVectorsBtn = document.getElementById('toggle-vectors-btn');
+      const dotValue = document.getElementById('dot-value');
+      const chart = document.getElementById('distance-chart');
+      const chartPoint = document.getElementById('chart-point');
+      const chartDetails = document.getElementById('chart-details');
+      const solutionBtn = document.getElementById('solution-btn');
+      const solutionPanel = document.getElementById('solution-panel');
+      const solutionCode = document.getElementById('solution-code');
+      const gateFeedback = document.getElementById('gate-feedback');
+      const modelControls = [animateBtn, distanceBtn, resetBtn, slider, solutionBtn, togglePlaneBtn, toggleVectorsBtn];
+
+      const formatNumber = (number, digits = 2) => number.toLocaleString('de-DE', {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      });
+
+      const distanceAt = (t) => {
+        const dx = 185 - (61 + 56 * t);
+        const dy = 5 - (87 + 7 * t);
+        const dz = 24 - (8 + 8 * t);
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+      };
+
+      const drawChart = (currentT) => {
+        if (!chart) return;
+        const rect = chart.getBoundingClientRect();
+        if (!rect.width) return;
+        const ratio = window.devicePixelRatio || 1;
+        chart.width = Math.round(rect.width * ratio);
+        chart.height = Math.round(210 * ratio);
+        const context = chart.getContext('2d');
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+        const width = rect.width;
+        const height = 210;
+        const pad = { left: 42, right: 14, top: 13, bottom: 29 };
+        const tMin = -0.5;
+        const tMax = 3.5;
+        const dMin = 90;
+        const dMax = 190;
+        const x = (t) => pad.left + ((t - tMin) / (tMax - tMin)) * (width - pad.left - pad.right);
+        const y = (distance) => height - pad.bottom - ((distance - dMin) / (dMax - dMin)) * (height - pad.top - pad.bottom);
+
+        context.clearRect(0, 0, width, height);
+        context.strokeStyle = '#e4e7ec';
+        context.lineWidth = 1;
+        context.fillStyle = '#7a8293';
+        context.font = '11px system-ui, sans-serif';
+        [100, 120, 140, 160, 180].forEach((value) => {
+          context.beginPath();
+          context.moveTo(pad.left, y(value));
+          context.lineTo(width - pad.right, y(value));
+          context.stroke();
+          context.fillText(String(value), 7, y(value) + 4);
+        });
+        [-0.5, 0.5, 1.5, 2.5, 3.5].forEach((value) => {
+          context.fillText(String(value).replace('.', ','), x(value) - 9, height - 8);
+        });
+
+        context.beginPath();
+        for (let index = 0; index <= 160; index += 1) {
+          const t = tMin + (index / 160) * (tMax - tMin);
+          const px = x(t);
+          const py = y(distanceAt(t));
+          if (index === 0) context.moveTo(px, py);
+          else context.lineTo(px, py);
+        }
+        context.strokeStyle = '#1264a3';
+        context.lineWidth = 3;
+        context.stroke();
+
+        const markerX = x(currentT);
+        const markerY = y(distanceAt(currentT));
+        context.setLineDash([4, 4]);
+        context.strokeStyle = '#d84a3a';
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(markerX, markerY);
+        context.lineTo(markerX, height - pad.bottom);
+        context.stroke();
+        context.setLineDash([]);
+        context.beginPath();
+        context.arc(markerX, markerY, 5, 0, Math.PI * 2);
+        context.fillStyle = '#d84a3a';
+        context.fill();
+      };
+
+      const updateExperiment = (t, writeToGeoGebra = true) => {
+        const distance = distanceAt(t);
+        slider.value = String(t);
+        tValue.textContent = formatNumber(t);
+        distanceValue.textContent = `${formatNumber(distance)} m`;
+        heroDistance.textContent = `${formatNumber(distance)} m`;
+        dotValue.textContent = formatNumber(6498 - 3249 * t);
+        chartPoint.textContent = `t = ${formatNumber(t)} · d = ${formatNumber(distance)} m`;
+        drawChart(t);
+        if (writeToGeoGebra && api) api.setValue('t', t);
+
+        discoveryNote.textContent = 'Erfasst mehrere Wertepaare und beschreibt, wie sich der Abstand beim Verschieben verändert.';
+      };
+
+      const setVisibleGroup = (names, visible) => {
+        if (!api) return;
+        names.forEach((name) => api.setVisible(name, visible));
+      };
+
+      const setStyle = (name, color, thickness, pointSize) => {
+        api.setColor(name, color[0], color[1], color[2]);
+        if (thickness) api.setLineThickness(name, thickness);
+        if (pointSize) api.setPointSize(name, pointSize);
+      };
+
+      const initializeConstruction = (ggbApi) => {
+        api = ggbApi;
+        api.setPerspective('T');
+        api.showToolBar(false);
+        api.showMenuBar(false);
+        api.showAlgebraInput(false);
+        const commands = [
+          'A=(61,87,8)',
+          'B=(117,94,16)',
+          'g=Line(A,B)',
+          'S=(185,5,24)',
+          'K=(185,5,0)',
+          'turm=Segment(K,S)',
+          'vFlug=Vector(A,B)',
+          'H: 56x+7y+8z=10587',
+          'F=Intersect(g,H)',
+          'lot=Segment(S,F)',
+          'd=Distance(S,g)',
+          't=0',
+          'P=(61+56t,87+7t,8+8t)',
+          'messung=Segment(S,P)',
+          'verbindung=Vector(P,S)'
+        ];
+
+        commands.forEach((command) => {
+          if (!api.evalCommand(command)) console.warn('GeoGebra-Befehl fehlgeschlagen:', command);
+        });
+
+        api.setCoordSystem(20, 260, -30, 150, -10, 90, false);
+        api.setAxesVisible(3, true, true, true);
+        api.setGridVisible(3, true);
+        api.setAxisLabels(3, 'x (m)', 'y (m)', 'z (m)');
+        api.setRounding('2');
+
+        setStyle('g', [18, 100, 163], 7);
+        setStyle('S', [220, 161, 58], null, 7);
+        setStyle('K', [220, 161, 58], null, 4);
+        setStyle('turm', [220, 161, 58], 9);
+        setStyle('F', [216, 74, 58], null, 6);
+        setStyle('lot', [216, 74, 58], 7);
+        setStyle('P', [23, 33, 53], null, 8);
+        setStyle('messung', [216, 74, 58], 5);
+        setStyle('vFlug', [18, 100, 163], 6);
+        setStyle('verbindung', [216, 74, 58], 6);
+        setStyle('H', [72, 131, 170], 2);
+        api.setFilling('H', 0.16);
+        api.setLineStyle('lot', 1);
+        api.setLineStyle('messung', 1);
+
+        ['A', 'B', 'K', 'd', 't'].forEach((name) => api.setVisible(name, false));
+        setVisibleGroup(['H', 'vFlug', 'verbindung', 'F', 'lot'], false);
+        ['g', 'S', 'P'].forEach((name) => api.setLabelVisible(name, true));
+        ['F', 'lot', 'messung', 'H', 'vFlug', 'verbindung'].forEach((name) => api.setLabelVisible(name, false));
+        api.setLabelVisible('turm', false);
+        api.setCaption('g', 'Flugbahn g');
+        api.setCaption('S', 'Kirchturmspitze S');
+        api.setCaption('F', 'Lotfuß F');
+        api.setCaption('P', 'Flugzeug');
+        ['g', 'S', 'F', 'P'].forEach((name) => api.setLabelStyle(name, 3));
+        ['S', 'K', 'turm'].forEach((name) => api.setFixed(name, true, false));
+
+        modelControls.forEach((control) => { control.disabled = false; });
+        updateExperiment(0, false);
+        loading.classList.add('hidden');
+        window.setTimeout(() => api.setPerspective('T'), 120);
+      };
+
+      const applet = new GGBApplet({
+        id: 'flightPathApplet',
+        appName: 'classic',
+        width: 1000,
+        height: 590,
+        scaleContainerClass: 'ggb-wrap',
+        autoHeight: false,
+        showToolBar: false,
+        showToolBarHelp: false,
+        showAlgebraInput: false,
+        showMenuBar: false,
+        showResetIcon: false,
+        showZoomButtons: false,
+        showFullscreenButton: false,
+        showSuggestionButtons: false,
+        showStartTooltip: false,
+        enableUndoRedo: false,
+        enable3d: true,
+        enableCAS: false,
+        enableLabelDrags: false,
+        enableShiftDragZoom: true,
+        enableRightClick: false,
+        capturingThreshold: 5,
+        preventFocus: true,
+        language: 'de',
+        perspective: 'T',
+        appletOnLoad: initializeConstruction
+      }, true);
+
+      window.addEventListener('load', () => {
+        try {
+          applet.inject('ggb-element');
+        } catch (error) {
+          loading.innerHTML = '<div><strong>Die 3D-Ansicht konnte nicht geladen werden.</strong><br><small>Bitte Internetverbindung prüfen und die Seite neu laden.</small></div>';
+          console.error(error);
+        }
+      });
+
+      animateBtn.addEventListener('click', () => {
+        if (!api) return;
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+          animationId = null;
+          animateBtn.innerHTML = '<span aria-hidden="true">▶</span> Flug starten';
+          return;
+        }
+
+        animationStart = performance.now();
+        animateBtn.innerHTML = '<span aria-hidden="true">Ⅱ</span> Anhalten';
+        const animate = (now) => {
+          const progress = ((now - animationStart) % 6500) / 6500;
+          updateExperiment(-0.5 + progress * 4);
+          animationId = requestAnimationFrame(animate);
+        };
+        animationId = requestAnimationFrame(animate);
+      });
+
+      slider.addEventListener('input', () => {
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = null;
+        animateBtn.innerHTML = '<span aria-hidden="true">▶</span> Flug starten';
+        updateExperiment(Number(slider.value));
+      });
+
+      distanceBtn.addEventListener('click', () => {
+        distanceVisible = !distanceVisible;
+        setVisibleGroup(['messung'], distanceVisible);
+        distanceBtn.classList.toggle('active', distanceVisible);
+        distanceBtn.setAttribute('aria-pressed', String(distanceVisible));
+      });
+
+      methodTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const method = tab.dataset.method;
+          methodTabs.forEach((item) => {
+            const selected = item === tab;
+            item.classList.toggle('active', selected);
+            item.setAttribute('aria-selected', String(selected));
+          });
+          methodPanels.forEach((panel) => {
+            const selected = panel.dataset.panel === method;
+            panel.classList.toggle('active', selected);
+            panel.hidden = !selected;
+          });
+          if (method === 'function') drawChart(Number(slider.value));
+        });
+      });
+
+      chartDetails.addEventListener('toggle', () => {
+        if (chartDetails.open) window.requestAnimationFrame(() => drawChart(Number(slider.value)));
+      });
+
+      togglePlaneBtn.addEventListener('click', () => {
+        planeVisible = !planeVisible;
+        setVisibleGroup(['H'], planeVisible);
+        setVisibleGroup(['F'], planeVisible || solutionVisible);
+        togglePlaneBtn.classList.toggle('active', planeVisible);
+        togglePlaneBtn.setAttribute('aria-pressed', String(planeVisible));
+        togglePlaneBtn.textContent = planeVisible ? 'Hilfsebene ausblenden' : 'Hilfsebene im Modell anzeigen';
+      });
+
+      toggleVectorsBtn.addEventListener('click', () => {
+        vectorsVisible = !vectorsVisible;
+        setVisibleGroup(['vFlug', 'verbindung'], vectorsVisible);
+        toggleVectorsBtn.classList.toggle('active', vectorsVisible);
+        toggleVectorsBtn.setAttribute('aria-pressed', String(vectorsVisible));
+        toggleVectorsBtn.textContent = vectorsVisible ? 'Vektoren ausblenden' : 'Vektoren im Modell anzeigen';
+      });
+
+      solutionBtn.addEventListener('click', () => {
+        if (!solutionUnlocked) {
+          if (solutionCode.value.trim() !== '13579') {
+            gateFeedback.textContent = 'Der eingegebene Code ist nicht korrekt.';
+            gateFeedback.className = 'gate-feedback error';
+            solutionCode.focus();
+            solutionCode.select();
+            return;
+          }
+          solutionUnlocked = true;
+          solutionCode.value = '13579';
+          solutionCode.disabled = true;
+          gateFeedback.textContent = 'Code korrekt – die Lösungswege sind freigeschaltet.';
+          gateFeedback.className = 'gate-feedback success';
+        }
+        solutionVisible = !solutionVisible;
+        solutionPanel.classList.toggle('visible', solutionVisible);
+        solutionBtn.setAttribute('aria-expanded', String(solutionVisible));
+        solutionBtn.textContent = solutionVisible ? 'Lösungen ausblenden' : 'Lösungen anzeigen';
+        setVisibleGroup(['F'], solutionVisible || planeVisible);
+        setVisibleGroup(['lot'], solutionVisible);
+        if (solutionVisible) solutionPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      solutionCode.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          solutionBtn.click();
+        }
+      });
+
+      resetBtn.addEventListener('click', () => {
+        if (!api) return;
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = null;
+        animateBtn.innerHTML = '<span aria-hidden="true">▶</span> Flug starten';
+        updateExperiment(0);
+        distanceVisible = true;
+        solutionVisible = false;
+        planeVisible = false;
+        vectorsVisible = false;
+        setVisibleGroup(['messung'], true);
+        setVisibleGroup(['H', 'vFlug', 'verbindung', 'F', 'lot'], false);
+        distanceBtn.classList.add('active');
+        distanceBtn.setAttribute('aria-pressed', 'true');
+        togglePlaneBtn.classList.remove('active');
+        togglePlaneBtn.setAttribute('aria-pressed', 'false');
+        togglePlaneBtn.textContent = 'Hilfsebene im Modell anzeigen';
+        toggleVectorsBtn.classList.remove('active');
+        toggleVectorsBtn.setAttribute('aria-pressed', 'false');
+        toggleVectorsBtn.textContent = 'Vektoren im Modell anzeigen';
+        solutionPanel.classList.remove('visible');
+        solutionBtn.textContent = solutionUnlocked ? 'Lösungen anzeigen' : 'Lösungen freischalten';
+        solutionBtn.setAttribute('aria-expanded', 'false');
+        if (!solutionUnlocked) {
+          solutionCode.value = '';
+          gateFeedback.textContent = 'Die vollständigen Lösungswege sind durch einen Code geschützt.';
+          gateFeedback.className = 'gate-feedback';
+        }
+        api.setCoordSystem(20, 260, -30, 150, -10, 90, false);
+      });
+
+      window.addEventListener('resize', () => {
+        if (api && typeof api.recalculateEnvironments === 'function') api.recalculateEnvironments();
+        drawChart(Number(slider.value));
+      });
+    })();
+  </script>
+</body>
+</html>
